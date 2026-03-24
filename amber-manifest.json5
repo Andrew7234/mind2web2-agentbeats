@@ -1,5 +1,5 @@
 {
-  manifest_version: "0.3.0",
+  manifest_version: "0.1.0",
   program: {
     image: "ghcr.io/rdi-foundation/mind2web2-agentbeats:latest",
     entrypoint: ["uv", "run", "src/server.py", "--host", "0.0.0.0", "--port", "8081"],
@@ -37,7 +37,7 @@
   provides: {
     a2a: { kind: "a2a", endpoint: "endpoint" },
   },
-  exports: { a2a: "provides.a2a" },
+  exports: { a2a: "a2a" },
   metadata: {
     assessment_config: {
       domain: "dev_set",
