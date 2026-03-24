@@ -1,0 +1,64 @@
+{
+  manifest_version: "0.3.0",
+  config_schema: {
+    type: "object",
+    properties: {
+      // Mind2Web-2 evaluation settings
+      // Domain: dev_set | test_set
+      domain: { type: "string", default: "dev_set" },
+      num_tasks: { type: "integer" },
+      // Purple agent model (litellm format)
+      agent_llm: { type: "string", default: "openai/gpt-4o-mini" },
+      // Judge model for evaluation (litellm format)
+      judge_llm: { type: "string", default: "openai/gpt-4o-mini" },
+      // API keys
+      openai_api_key: { type: "string", secret: true },
+      gemini_api_key: { type: "string", secret: true },
+      deepseek_api_key: { type: "string", secret: true },
+      anthropic_api_key: { type: "string", secret: true },
+    },
+    required: ["agent_llm"],
+    additionalProperties: false,
+  },
+  components: {
+    gateway: {
+      manifest: "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/tags/v0.3/amber-manifest.json5",
+      config: {
+        assessment_config: {
+          domain: "${config.domain}",
+          num_tasks: "${config.num_tasks}",
+          judge_model: "${config.judge_llm}",
+        },
+        participant_roles: {
+          green: "mind2web2_evaluator",
+          purple1: "agent",
+        },
+      }
+    },
+    green: {
+      manifest: "./amber-manifest-green.json5",
+      config: {
+        judge_llm: "${config.judge_llm}",
+        openai_api_key: "${config.openai_api_key}",
+        gemini_api_key: "${config.gemini_api_key}",
+        deepseek_api_key: "${config.deepseek_api_key}",
+      }
+    },
+    purple_agent: {
+      manifest: "./amber-manifest-purple.json5",
+      config: {
+        agent_llm: "${config.agent_llm}",
+        openai_api_key: "${config.openai_api_key}",
+        gemini_api_key: "${config.gemini_api_key}",
+        deepseek_api_key: "${config.deepseek_api_key}",
+        anthropic_api_key: "${config.anthropic_api_key}",
+      }
+    }
+  },
+  bindings: [
+    { to: "#gateway.green",   from: "#green.a2a" },
+    { to: "#gateway.purple1", from: "#purple_agent.a2a" },
+    { to: "#green.proxy",     from: "#gateway.proxy", weak: true },
+  ],
+  exports: { results: "#gateway.results" },
+}

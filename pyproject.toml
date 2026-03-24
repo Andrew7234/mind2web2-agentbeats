@@ -1,13 +1,17 @@
 [project]
 name = "green-agent-template"
 version = "0.1.0"
-description = "A template for A2A green agents"
+description = "Mind2Web-2 green agent for AgentBeats"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "a2a-sdk[http-server]>=0.3.20",
     "pydantic>=2.12.5",
     "uvicorn>=0.38.0",
+    "litellm>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "backoff>=2.0.0",
+    "mind2web2",
 ]
 
 [project.optional-dependencies]
@@ -16,3 +20,6 @@ test = [
     "pytest-asyncio>=0.24.0",
     "httpx>=0.28.1",
 ]
+
+[tool.uv.sources]
+mind2web2 = { git = "https://github.com/OSU-NLP-Group/Mind2Web-2.git", branch = "main" }

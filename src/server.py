@@ -24,16 +24,18 @@ def main():
     # See: https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/
     
     skill = AgentSkill(
-        id="",
-        name="",
-        description="",
-        tags=[],
-        examples=[]
+        id="mind2web2-eval",
+        name="Mind2Web-2 Benchmark Evaluation",
+        description="Evaluates web search agents on Mind2Web-2 benchmark tasks requiring multi-source research with URL citations",
+        tags=["benchmark", "evaluation", "mind2web2", "web-search"],
+        examples=[
+            '{"participants": {"agent": "http://localhost:9019"}, "config": {"domain": "dev_set", "num_tasks": 2}}'
+        ]
     )
 
     agent_card = AgentCard(
-        name="",
-        description="",
+        name="Mind2Web-2 Evaluator",
+        description="Evaluates web search agents on the Mind2Web-2 benchmark using hierarchical verification trees",
         url=args.card_url or f"http://{args.host}:{args.port}/",
         version='1.0.0',
         default_input_modes=['text'],
