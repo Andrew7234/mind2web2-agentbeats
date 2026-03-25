@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+RUN apt-get update && apt-get install -y --no-install-recommends git xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN adduser agent
@@ -25,7 +25,6 @@ RUN uv run python -c "from huggingface_hub import snapshot_download; snapshot_do
 
 ENV DATA_DIR=/home/agent/mind2web2-data
 ENV CACHE_DIR=/home/agent/cache
-
-ENTRYPOINT ["uv", "run", "src/server.py"]
+ENTRYPOINT ["xvfb-run", "uv", "run", "src/server.py"]
 CMD ["--host", "0.0.0.0", "--port", "9009"]
 EXPOSE 9009
