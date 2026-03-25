@@ -1,10 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    libnss3 libatk-bridge2.0-0 libdrm2 libxcomposite1 libxdamage1 \
-    libxrandr2 libgbm1 libasound2 libpango-1.0-0 libcairo2 libatspi2.0-0 \
-    libxshmfence1 libx11-xcb1 \
+RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN adduser agent
@@ -19,6 +15,9 @@ RUN --mount=type=cache,target=/home/agent/.cache/uv,uid=1000 \
 
 # Install Chromium for patchright (webpage capture during evaluation)
 RUN uv run patchright install chromium
+USER root
+RUN uv run patchright install-deps chromium
+USER agent
 
 # Download eval scripts from HuggingFace (requires HF_TOKEN at build time)
 ARG HF_TOKEN
@@ -28,5 +27,5 @@ ENV DATA_DIR=/home/agent/mind2web2-data
 ENV CACHE_DIR=/home/agent/cache
 
 ENTRYPOINT ["uv", "run", "src/server.py"]
-CMD ["--host", "0.0.0.0", "--port", "8081"]
-EXPOSE 8081
+CMD ["--host", "0.0.0.0", "--port", "9009"]
+EXPOSE 9009

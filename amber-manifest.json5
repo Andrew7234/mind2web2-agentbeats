@@ -19,7 +19,7 @@
 
   program: {
     image: "ghcr.io/andrew7234/mind2web2-agentbeats:latest",
-    entrypoint: "uv run src/server.py --host 0.0.0.0 --port 8081",
+    entrypoint: "uv run src/server.py --host 0.0.0.0 --port 9009",
 
     env: {
       PYTHONUNBUFFERED: "1",
@@ -33,7 +33,7 @@
 
     network: {
       endpoints: [
-        { name: "a2a_endpoint", port: 8081 },
+        { name: "a2a_endpoint", port: 9009 },
       ],
     },
   },
