@@ -1,4 +1,5 @@
 import asyncio
+import contextvars
 import csv
 import logging
 import os
@@ -22,28 +23,28 @@ from mind2web2.utils.cache_filesys import CacheFileSys
 from mind2web2.eval_runner import DualSemaphore
 from mind2web2.utils.page_info_retrieval import BatchBrowserManager
 
-_active_browsers: list[BatchBrowserManager] = []
+_task_browsers: dict[str, list[BatchBrowserManager]] = {}
 _original_bbm_start = BatchBrowserManager.start
+_current_task_id: contextvars.ContextVar[str | None] = contextvars.ContextVar("_current_task_id", default=None)
 
 async def _patched_bbm_start(self):
     await _original_bbm_start(self)
-    _active_browsers.append(self)
-    logging.info(f"Browser started, tracking {len(_active_browsers)} active browsers")
+    task_id = _current_task_id.get()
+    if task_id is not None:
+        _task_browsers.setdefault(task_id, []).append(self)
+    logging.info(f"Browser started for task {task_id}")
 
 BatchBrowserManager.start = _patched_bbm_start
 
 
-async def _cleanup_browsers():
-    count = len(_active_browsers)
-    if count:
-        logging.info(f"Cleaning up {count} browser(s)...")
-    while _active_browsers:
-        mgr = _active_browsers.pop()
+async def _cleanup_browsers(task_id: str):
+    browsers = _task_browsers.pop(task_id, [])
+    for mgr in browsers:
         try:
             await mgr.stop()
-            logging.info("Browser stopped successfully")
+            logging.info(f"Browser stopped for task {task_id}")
         except Exception as e:
-            logging.warning(f"Failed to stop browser: {e}")
+            logging.warning(f"Failed to stop browser for task {task_id}: {e}")
 
 DATA_DIR = os.getenv("DATA_DIR", "mind2web2-data")
 CACHE_DIR = os.getenv("CACHE_DIR", "cache")
@@ -284,10 +285,11 @@ Task Results:
         if judge_model:
             eval_kwargs["model"] = judge_model
 
+        _current_task_id.set(task_id)
         try:
             result = await eval_fn(**eval_kwargs)
         finally:
-            await _cleanup_browsers()
+            await _cleanup_browsers(task_id)
         cache.save()
         t_eval = time.time() - t1
 

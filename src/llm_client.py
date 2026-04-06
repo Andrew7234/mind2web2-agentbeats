@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = os.getenv("AGENT_LLM", "openai/gpt-4o-mini")
 
+litellm._turn_on_debug()
 
 def _log_backoff(details):
     exc = details.get("exception")
