@@ -1,6 +1,6 @@
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends git xvfb \
+RUN apt-get update && apt-get install -y --no-install-recommends git xvfb xauth \
     && rm -rf /var/lib/apt/lists/*
 
 RUN adduser agent
